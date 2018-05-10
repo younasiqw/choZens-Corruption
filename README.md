@@ -1,1 +1,1 @@
-# choZens Corruption
+# corruption.vip

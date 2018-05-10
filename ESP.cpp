@@ -77,6 +77,11 @@ void CEsp::Draw()
 				if (cClass->m_ClassID == (int)CSGOClassID::CChicken)
 					DrawChicken(pEntity, cClass);
 			}
+
+			if (Menu::Window.VisualsTab.Grenades2.GetState())
+			{
+				NewNadePred();
+			}
 		}
 	}
 }
@@ -223,10 +228,6 @@ void CEsp::DrawPlayer(IClientEntity* pEntity, player_info_t pinfo)
 			if (Menu::Window.VisualsTab.DrawLinesAA.GetState())
 				DrawLinesAA(Color);
 
-			if (pLocal->IsAlive())
-				if (Menu::Window.VisualsTab.Grenades2.GetState())
-					NewNadePred();
-
 			if (Menu::Window.VisualsTab.DrawDistance.GetState())
 				DrawDistance(pEntity, Box);
 		}
@@ -363,11 +364,20 @@ void CEsp::Barrel(CEsp::ESPBox size, Color color, IClientEntity* pEntity)
 }
 
 void NewNadePred()
-{
-	/*
+{	
 	IClientEntity *pLocal = hackManager.pLocal();
 	IClientEntity *pEntity = hackManager.pLocal();
 	CBaseCombatWeapon* pWeapon = (CBaseCombatWeapon*)Interfaces::EntList->GetClientEntityFromHandle(pLocal->GetActiveWeaponHandle());
+	
+	if (pLocal == nullptr)
+		return;
+	if (pEntity == nullptr)
+		return;
+	if (pWeapon == nullptr)
+		return;
+	if (!pLocal->IsAlive())
+		return;
+
 	const float TIMEALIVE = 5.f;
 	const float GRENADE_COEFFICIENT_OF_RESTITUTION = 0.4f;
 
@@ -445,7 +455,7 @@ void NewNadePred()
 			vStart = vPos;
 			vThrow2.z -= fGravity * tr.fraction*fStep;
 		}
-	}*/
+	}
 }
 
 void CEsp::DrawMoney(IClientEntity* pEntity, CEsp::ESPBox size)

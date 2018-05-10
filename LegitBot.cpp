@@ -624,16 +624,19 @@ bool CLegitBot::TargetMeetsRequirements(IClientEntity* pEntity)
 						return false;
 
 				}
-
+				if (Menu::Window.LegitBotTab.AimbotVisCheck.GetState()) {
+					bool IsVis = GameUtils::IsVisible(hackManager.pLocal(), pEntity, (int)CSGOHitboxID::Head);
+					if (!IsVis)
+						return false;
+				}
 				if (Multihitbox) {
 					if (!pEntity->HasGunGameImmunity())
 					{
-						if (GameUtils::IsVisible(hackManager.pLocal(), pEntity, 0) || GameUtils::IsVisible(hackManager.pLocal(), pEntity, 8) || GameUtils::IsVisible(hackManager.pLocal(), pEntity, 4 || GameUtils::IsVisible(hackManager.pLocal(), pEntity, 1 || GameUtils::IsVisible(hackManager.pLocal(), pEntity, 2 || GameUtils::IsVisible(hackManager.pLocal(), pEntity, 3 || GameUtils::IsVisible(hackManager.pLocal(), pEntity, 5 || GameUtils::IsVisible(hackManager.pLocal(), pEntity, 7 || GameUtils::IsVisible(hackManager.pLocal(), pEntity, 9 || GameUtils::IsVisible(hackManager.pLocal(), pEntity, 10 || GameUtils::IsVisible(hackManager.pLocal(), pEntity, 6))))))))))
+						if ((GameUtils::IsVisible(hackManager.pLocal(), pEntity, 0) || GameUtils::IsVisible(hackManager.pLocal(), pEntity, 4) || GameUtils::IsVisible(hackManager.pLocal(), pEntity, 1 )|| GameUtils::IsVisible(hackManager.pLocal(), pEntity, 2) || GameUtils::IsVisible(hackManager.pLocal(), pEntity, 3 )|| GameUtils::IsVisible(hackManager.pLocal(), pEntity, 5) || GameUtils::IsVisible(hackManager.pLocal(), pEntity, 7)  || GameUtils::IsVisible(hackManager.pLocal(), pEntity, 6)))
 							return true;
 						else
 							return false;
 					}
-
 				}
 				else
 				{
@@ -646,7 +649,6 @@ bool CLegitBot::TargetMeetsRequirements(IClientEntity* pEntity)
 			}
 		}
 	}
-
 	return false;
 }
 

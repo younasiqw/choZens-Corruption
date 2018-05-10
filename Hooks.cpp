@@ -1875,6 +1875,8 @@ void  __stdcall Hooked_FrameStageNotify(ClientFrameStage_t curStage)
 	{
 
 		IClientEntity *pLocal = Interfaces::EntList->GetClientEntity(Interfaces::Engine->GetLocalPlayer());
+		if (pLocal == nullptr)
+			return;
 		if (Menu::Window.MiscTab.SkinEnable.GetState() && pLocal)
 		{
 			IClientEntity* WeaponEnt = Interfaces::EntList->GetClientEntityFromHandle(pLocal->GetActiveWeaponHandle());
@@ -1901,6 +1903,8 @@ void  __stdcall Hooked_FrameStageNotify(ClientFrameStage_t curStage)
 
 				if (pEntity)
 				{
+					if (pEntity == nullptr)
+						return;
 					ULONG hOwnerEntity = *(PULONG)((DWORD)pEntity + 0x148);
 
 					IClientEntity* pOwner = Interfaces::EntList->GetClientEntityFromHandle((HANDLE)hOwnerEntity);
@@ -1909,12 +1913,16 @@ void  __stdcall Hooked_FrameStageNotify(ClientFrameStage_t curStage)
 					{
 						if (pOwner == pLocal)
 						{
+							if (pOwner == nullptr)
+								return;
 							std::string sWeapon = Interfaces::ModelInfo->GetModelName(pEntity->GetModel());
 
 							auto weps = pLocal->Weapons();
 							for (size_t i = 0; weps[i] != nullptr; i++) {
 								auto pWeapons = reinterpret_cast<CBaseCombatWeapon*>(Interfaces::EntList->GetClientEntityFromHandle(weps[i]));
 							}
+							if (pLocal->Weapons() == nullptr)
+								return;
 
 							//if (!(sWeapon.find("models/weapons", 0) != std::string::npos))
 							//	continue;
@@ -2387,6 +2395,9 @@ void  __stdcall Hooked_FrameStageNotify(ClientFrameStage_t curStage)
 								return;
 
 							int weapon = *pWeapon->m_AttributeManager()->m_Item()->ItemDefinitionIndex();//crash with nade?
+							
+							if (pWeapon == nullptr)
+								return;
 							
 							switch (weapon)
 							{

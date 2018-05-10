@@ -108,6 +108,7 @@ public:
 	CCheckBox AimbotKeyPress;
 	CKeyBind  AimbotKeyBind;
 	CCheckBox AimbotSmokeCheck;
+	CCheckBox AimbotVisCheck;
 
 	CCheckBox OtherAimbotDebug;
 
