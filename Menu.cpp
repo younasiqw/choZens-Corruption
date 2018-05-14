@@ -70,7 +70,7 @@ void KnifeApplyCallbk()
 	static ConVar* Meme = Interfaces::CVar->FindVar("cl_fullupdate");
 	Meme->nFlags &= ~FCVAR_CHEAT;
 	Interfaces::Engine->ClientCmd_Unrestricted("cl_fullupdate");
-	//bGlovesNeedUpdate = true;
+	bGlovesNeedUpdate = true;
 }
 
 void GlovesApplyCallbk()
@@ -78,7 +78,7 @@ void GlovesApplyCallbk()
 	static ConVar* Meme = Interfaces::CVar->FindVar("cl_fullupdate");
 	Meme->nFlags &= ~FCVAR_CHEAT;
 	Interfaces::Engine->ClientCmd_Unrestricted("cl_fullupdate");
-	//bGlovesNeedUpdate = true;
+	bGlovesNeedUpdate = true;
 }
 
 void CorruptionWindow::Setup()
@@ -417,6 +417,9 @@ void CLegitBotTab::Setup()
 
 	AimbotEnable.SetFileId("aim_enable");
 	AimbotGroup.PlaceLabledControl("Enabled", this, &AimbotEnable);
+	
+	AimbotKeyBind.SetFileId("aim_key");
+	AimbotGroup.PlaceLabledControl("", this, &AimbotKeyBind);
 
 	AimbotAutoFire.SetFileId("aim_autofire");
 	AimbotGroup.PlaceLabledControl("Auto Fire", this, &AimbotAutoFire);
@@ -429,9 +432,11 @@ void CLegitBotTab::Setup()
 	/*some shit*/
 	FakeLagFix.SetFileId("legt_bt");
 	AimbotGroup.PlaceLabledControl("Backtracking",this,&FakeLagFix);
-
-	AimbotKeyBind.SetFileId("aim_key");
-	AimbotGroup.PlaceLabledControl("", this, &AimbotKeyBind);
+	
+	TickModulation.SetFileId("tick_modulate");
+	TickModulation.SetBoundaries(0.f, 12.f);
+	TickModulation.SetValue(12.f);
+	AimbotGroup.PlaceLabledControl("Tick", this, &TickModulation);
 
 	OtherAimbotDebug.SetFileId("otr_aimdebug");
 	AimbotGroup.PlaceLabledControl("Fake Ping Exploit", this, &OtherAimbotDebug);

@@ -79,8 +79,10 @@ public:
 	}
 	int GetLocalPlayer()
 	{
+		//typedef int(__thiscall* oLocal)(PVOID);
+		//return call_vfunc< oLocal >(this, 12)(this);
 		typedef int(__thiscall* oLocal)(PVOID);
-		return call_vfunc< oLocal >(this, 12)(this);
+		return call_vfunc< oLocal >(this, Offsets::VMT::Engine_GetLocalPlayer)(this);
 	}
 	float Time()
 	{

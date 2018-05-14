@@ -78,7 +78,7 @@ float GetHitgroupDamageMult(int iHitGroup)
 
 	return 1.f;
 }
-void ScaleDamage(int hitgroup, IClientEntity *enemy, float weapon_armor_ratio, float &current_damage)
+/*void ScaleDamage(int hitgroup, IClientEntity *enemy, float weapon_armor_ratio, float &current_damage)
 {
 current_damage *= GetHitgroupDamageMult(hitgroup);
 
@@ -97,8 +97,8 @@ current_damage *= GetHitgroupDamageMult(hitgroup);
 			current_damage *= (weapon_armor_ratio* 0.5);
 		}
 	}
-}
-/*
+}*/
+
 void ScaleDamage(int hitgroup, IClientEntity *player, float weapon_armor_ratio, float &current_damage)
 {
 	bool heavArmor = player->m_bHasHeavyArmor();
@@ -155,7 +155,7 @@ void ScaleDamage(int hitgroup, IClientEntity *player, float weapon_armor_ratio, 
 
 		current_damage = new_damage;
 	}
-}*/
+}
 bool SimulateFireBullet(IClientEntity* entity, IClientEntity *local, CBaseCombatWeapon *weapon, FireBulletData &data)
 {
 	data.penetrate_count = 4;

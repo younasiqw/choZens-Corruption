@@ -715,13 +715,20 @@ void CEsp::DrawInfo(IClientEntity* pEntity, CEsp::ESPBox size)
 		Render::Text(size.x + size.w + 3, size.y + (i*(nameSize.bottom + 6) + 15), Color(205, 99, 171, 255), Render::Fonts::ESP, "Defusing");
 	}
 
-	/*if (Menu::Window.VisualsTab.OptionsInfo.GetState())
+	if (Menu::Window.VisualsTab.OptionsInfo.GetState() && pEntity->HasDefuser())
+	{
+		RECT nameSize = Render::GetTextSize(Render::Fonts::ESP, "");
+		int i = 0;
+		Render::Text(size.x + size.w + 3, size.y + (i*(nameSize.bottom + 6) + 10), Color(255, 99, 71, 255), Render::Fonts::ESP, "With Kit");
+	}
+
+	if (Menu::Window.VisualsTab.OptionsInfo.GetState() && Menu::Window.RageBotTab.AimbotEnable.GetState())
 	{
 		RECT nameSize = Render::GetTextSize(Render::Fonts::ESP, "");
 		char dmgmemes[64];
-		sprintf_s(dmgmemes, "DMG: %.1f", autowalldmgtest[pEntity->GetIndex()]);
+		sprintf_s(dmgmemes, "DMG: %.%f", autowalldmgtest[pEntity->GetIndex()]);
 		Render::Text(size.x + size.w + 3, size.y + (i*(nameSize.bottom + 6) + 10), Color(208, 202, 0, 255), Render::Fonts::ESP, dmgmemes);
-	}*/
+	}
 
 	static RECT Size = Render::GetTextSize(Render::Fonts::Menu, "Text");
 	for (auto Text : Info)
@@ -735,7 +742,6 @@ void CEsp::drawBacktrackedSkelet(IClientEntity *base, player_info_t pinfo)
 {
 	int idx = base->getIdx();
 	IClientEntity* pLocal = hackManager.pLocal();
-
 	LagRecord *m_LagRecords = lagComp->m_LagRecord[idx];
 	LagRecord recentLR = m_LagRecords[10];
 	static int Scale = 2;
@@ -768,7 +774,24 @@ void CEsp::drawBacktrackedSkelet(IClientEntity *base, player_info_t pinfo)
 
 									Interfaces::Surface->DrawSetColor(Color::Green());
 									Interfaces::Surface->DrawOutlinedRect(screenbacktrack[i][t].x, screenbacktrack[i][t].y, screenbacktrack[i][t].x + 2, screenbacktrack[i][t].y + 2);
+								}
+							}
+							if (chestPositions[i][t].simtime && chestPositions[i][t].simtime + 1 > pLocal->GetSimulationTime())
+							{
+								if (Render::WorldToScreen(chestPositions[i][t].hitboxPos, screenbacktrack[i][t]))
+								{
 
+									Interfaces::Surface->DrawSetColor(Color::Green());
+									Interfaces::Surface->DrawOutlinedRect(screenbacktrack[i][t].x, screenbacktrack[i][t].y, screenbacktrack[i][t].x + 2, screenbacktrack[i][t].y + 2);
+								}
+							}
+							if (pelvisPositions[i][t].simtime && pelvisPositions[i][t].simtime + 1 > pLocal->GetSimulationTime())
+							{
+								if (Render::WorldToScreen(pelvisPositions[i][t].hitboxPos, screenbacktrack[i][t]))
+								{
+
+									Interfaces::Surface->DrawSetColor(Color::Green());
+									Interfaces::Surface->DrawOutlinedRect(screenbacktrack[i][t].x, screenbacktrack[i][t].y, screenbacktrack[i][t].x + 2, screenbacktrack[i][t].y + 2);
 								}
 							}
 						}
@@ -776,15 +799,18 @@ void CEsp::drawBacktrackedSkelet(IClientEntity *base, player_info_t pinfo)
 					else
 					{
 						memset(&headPositions[0][0], 0, sizeof(headPositions));
+						memset(&bonematrices[0][0], 0, sizeof(bonematrices));
 					}
 				}
 				else if (!Menu::Window.VisualsTab.LegitMode1.GetState())
 				{
 					if (pLocal->IsAlive())
 					{
+						studiohdr_t* pStudioHdr = Interfaces::ModelInfo->GetStudiomodel(base->GetModel());
 						for (int t = 0; t < 12; ++t)
 						{
 							Vector screenbacktrack[64][12];
+							Vector BoneMatrix[64][12];
 
 							if (headPositions[i][t].simtime && headPositions[i][t].simtime + 1 > pLocal->GetSimulationTime())
 							{
@@ -793,7 +819,6 @@ void CEsp::drawBacktrackedSkelet(IClientEntity *base, player_info_t pinfo)
 
 									Interfaces::Surface->DrawSetColor(Color::Green());
 									Interfaces::Surface->DrawOutlinedRect(screenbacktrack[i][t].x, screenbacktrack[i][t].y, screenbacktrack[i][t].x + 2, screenbacktrack[i][t].y + 2);
-
 								}
 							}
 						}

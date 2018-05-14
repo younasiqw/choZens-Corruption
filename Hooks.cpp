@@ -1270,7 +1270,7 @@ int RandomInt(int min, int max)
 	return rand() % max + min;
 }
 
-/*bool bGlovesNeedUpdate;
+bool bGlovesNeedUpdate;
 void ApplyCustomGloves(IClientEntity* pLocal)
 {
 	if (Menu::Window.MiscTab.EnableGloves.GetState())
@@ -1278,15 +1278,9 @@ void ApplyCustomGloves(IClientEntity* pLocal)
 		if (!Interfaces::Engine->IsConnected() || !Interfaces::Engine->IsInGame())
 			return;
 
-		if (bGlovesNeedUpdate && pLocal->IsAlive())
+		if (bGlovesNeedUpdate || !pLocal->IsAlive())
 		{
 			DWORD* hMyWearables = (DWORD*)((size_t)pLocal + 0x2EF4);
-
-			if (!hMyWearables)
-				return;
-			
-			if (!pLocal->IsAlive())
-				return;
 
 			if (!Interfaces::EntList->GetClientEntity(hMyWearables[0] & 0xFFF))
 			{
@@ -1309,11 +1303,11 @@ void ApplyCustomGloves(IClientEntity* pLocal)
 			Interfaces::Engine->GetPlayerInfo(Interfaces::Engine->GetLocalPlayer(), &LocalPlayerInfo);
 
 			CBaseCombatWeapon* glovestochange = (CBaseCombatWeapon*)Interfaces::EntList->GetClientEntity(hMyWearables[0] & 0xFFF);
-			*reinterpret_cast<int*>(uintptr_t(glovestochange) + 0x64) = -1;
-			
+
 			if (!glovestochange)
 				return;
-			
+
+
 			switch (Menu::Window.MiscTab.GloveModel.GetIndex())
 			{
 			case 1:
@@ -1440,19 +1434,10 @@ void ApplyCustomGloves(IClientEntity* pLocal)
 
 
 			glovestochange->PreDataUpdate(0);
-			//bGlovesNeedUpdate = false;
-			if (pLocal->IsAlive())
-			{
-				bGlovesNeedUpdate = true;
-			}
-			else
-			{
-				bGlovesNeedUpdate = false;
-			}
+			bGlovesNeedUpdate = false;
 		}
 	}
-} */
-/*Wrapzii SHIT*/
+}
 
 void AutoResolver(Vector* & Angle, IClientEntity* Player)
 {
@@ -1870,40 +1855,33 @@ void  __stdcall Hooked_FrameStageNotify(ClientFrameStage_t curStage)
 			*(int*)((uintptr_t)pCurEntity + 0xA28) = 0; //clear occlusion flags
 		}
 	}
-
 	if (Interfaces::Engine->IsConnected() && Interfaces::Engine->IsInGame() && curStage == FRAME_NET_UPDATE_POSTDATAUPDATE_START)
 	{
-
 		IClientEntity *pLocal = Interfaces::EntList->GetClientEntity(Interfaces::Engine->GetLocalPlayer());
-		if (Menu::Window.MiscTab.SkinEnable.GetState() && pLocal)
+
+		int iBayonet = Interfaces::ModelInfo->GetModelIndex("models/weapons/v_knife_bayonet.mdl");
+		int iButterfly = Interfaces::ModelInfo->GetModelIndex("models/weapons/v_knife_butterfly.mdl");
+		int iFlip = Interfaces::ModelInfo->GetModelIndex("models/weapons/v_knife_flip.mdl");
+		int iGut = Interfaces::ModelInfo->GetModelIndex("models/weapons/v_knife_gut.mdl");
+		int iKarambit = Interfaces::ModelInfo->GetModelIndex("models/weapons/v_knife_karam.mdl");
+		int iM9Bayonet = Interfaces::ModelInfo->GetModelIndex("models/weapons/v_knife_m9_bay.mdl");
+		int iHuntsman = Interfaces::ModelInfo->GetModelIndex("models/weapons/v_knife_tactical.mdl");
+		int iFalchion = Interfaces::ModelInfo->GetModelIndex("models/weapons/v_knife_falchion_advanced.mdl");
+		int iDagger = Interfaces::ModelInfo->GetModelIndex("models/weapons/v_knife_push.mdl");
+		int iBowie = Interfaces::ModelInfo->GetModelIndex("models/weapons/v_knife_survival_bowie.mdl");
+		int iGunGame = Interfaces::ModelInfo->GetModelIndex("models/weapons/v_knife_gg.mdl");
+
+		for (int i = 0; i <= Interfaces::EntList->GetHighestEntityIndex(); i++)
 		{
-			IClientEntity* WeaponEnt = Interfaces::EntList->GetClientEntityFromHandle(pLocal->GetActiveWeaponHandle());
-			int iBayonet = Interfaces::ModelInfo->GetModelIndex("models/weapons/v_knife_bayonet.mdl");
-			int iButterfly = Interfaces::ModelInfo->GetModelIndex("models/weapons/v_knife_butterfly.mdl");
-			int iFlip = Interfaces::ModelInfo->GetModelIndex("models/weapons/v_knife_flip.mdl");
-			int iGut = Interfaces::ModelInfo->GetModelIndex("models/weapons/v_knife_gut.mdl");
-			int iKarambit = Interfaces::ModelInfo->GetModelIndex("models/weapons/v_knife_karam.mdl");
-			int iM9Bayonet = Interfaces::ModelInfo->GetModelIndex("models/weapons/v_knife_m9_bay.mdl");
-			int iHuntsman = Interfaces::ModelInfo->GetModelIndex("models/weapons/v_knife_tactical.mdl");
-			int iFalchion = Interfaces::ModelInfo->GetModelIndex("models/weapons/v_knife_falchion_advanced.mdl");
-			int iDagger = Interfaces::ModelInfo->GetModelIndex("models/weapons/v_knife_push.mdl");
-			int iBowie = Interfaces::ModelInfo->GetModelIndex("models/weapons/v_knife_survival_bowie.mdl");
+			IClientEntity *pEntity = Interfaces::EntList->GetClientEntity(i);
 
-			int iGunGame = Interfaces::ModelInfo->GetModelIndex("models/weapons/v_knife_gg.mdl");
-
-			for (int i = 0; i <= Interfaces::EntList->GetHighestEntityIndex(); i++)
+			if (pEntity)
 			{
-				IClientEntity *pEntity = Interfaces::EntList->GetClientEntity(i);
+				ApplyCustomGloves(pLocal);
 
-				IClientEntity* WeaponEnt = Interfaces::EntList->GetClientEntityFromHandle(pLocal->GetActiveWeaponHandle());
+				ULONG hOwnerEntity = *(PULONG)((DWORD)pEntity + 0x148);
 
-				CBaseCombatWeapon* Weapon = (CBaseCombatWeapon*)WeaponEnt;
-
-				if (pEntity)
-				{
-					ULONG hOwnerEntity = *(PULONG)((DWORD)pEntity + 0x148);
-
-					IClientEntity* pOwner = Interfaces::EntList->GetClientEntityFromHandle((HANDLE)hOwnerEntity);
+				IClientEntity* pOwner = Interfaces::EntList->GetClientEntityFromHandle((HANDLE)hOwnerEntity);
 
 					if (pOwner)
 					{
@@ -1912,12 +1890,17 @@ void  __stdcall Hooked_FrameStageNotify(ClientFrameStage_t curStage)
 							std::string sWeapon = Interfaces::ModelInfo->GetModelName(pEntity->GetModel());
 
 							auto weps = pLocal->Weapons();
-							for (size_t i = 0; weps[i] != nullptr; i++) {
+							for (size_t i = 0; weps[i] != nullptr; i++){
 								auto pWeapons = reinterpret_cast<CBaseCombatWeapon*>(Interfaces::EntList->GetClientEntityFromHandle(weps[i]));
 							}
+							
+							if(!pLocal->IsAlive()){
+							if (!(sWeapon.find("models/weapons", 0) != std::string::npos))
+								continue;
+							}
 
-							//if (!(sWeapon.find("models/weapons", 0) != std::string::npos))
-							//	continue;
+							if (sWeapon.find("models/weapons", 0) != std::string::npos)
+								continue;
 
 							if (sWeapon.find("c4_planted", 0) != std::string::npos)
 								continue;
@@ -1949,383 +1932,9 @@ void  __stdcall Hooked_FrameStageNotify(ClientFrameStage_t curStage)
 							if (sWeapon.find("w_eq_", 0) != std::string::npos)
 								continue;
 
-
 							CBaseCombatWeapon* pWeapon = (CBaseCombatWeapon*)pEntity;
 
 							ClientClass *pClass = Interfaces::Client->GetAllClasses();
-
-
-
-
-
-
-
-
-
-							if (Menu::Window.MiscTab.EnableGloves.GetState())
-							{
-								IClientEntity *pLocal = Interfaces::EntList->GetClientEntity(Interfaces::Engine->GetLocalPlayer());
-
-								static bool bUpdate = false;
-
-								int* hMyWearables = pLocal->GetWearables();
-
-								if (!hMyWearables)
-									return;
-
-								if (!Interfaces::EntList->GetClientEntity(hMyWearables[0] & 0xFFF))
-								{
-									for (ClientClass *pClass = Interfaces::Client->GetAllClasses(); pClass; pClass = pClass->m_pNext)
-									{
-										if (pClass->m_ClassID != (int)CSGOClassID::CEconWearable)
-											continue;
-
-										int entry = (Interfaces::EntList->GetHighestEntityIndex() + 1), serial = RandomInt(0x0, 0xFFF);
-										pClass->m_pCreateFn(entry, serial);
-										hMyWearables[0] = entry | (serial << 16); //crash
-
-										bUpdate = true;
-										break;
-									}
-
-
-									player_info_t LocalPlayerInfo;
-									Interfaces::Engine->GetPlayerInfo(Interfaces::Engine->GetLocalPlayer(), &LocalPlayerInfo);
-								}
-								CBaseCombatWeapon* pWeapon_g = (CBaseCombatWeapon*)Interfaces::EntList->GetClientEntity(pLocal->GetWearables()[0] & 0xFFF);
-								*reinterpret_cast<int*>(uintptr_t(pWeapon_g) + 0x64) = -1;
-
-
-								int Glove_model = Menu::Window.MiscTab.GloveModel.GetIndex();
-								int Glove_skin = Menu::Window.MiscTab.GloveSkin.GetIndex();
-
-								if (!pWeapon_g)
-									return;
-
-								if (bUpdate) {
-									if (Glove_model == 0)
-									{
-
-										*pWeapon_g->m_AttributeManager()->m_Item()->ItemDefinitionIndex() = 5027;
-										*pWeapon_g->m_AttributeManager()->m_Item()->ItemIDHigh() = -1;
-
-										((IClientEntity*)pWeapon_g)->SetModelIndexVirtual(Interfaces::ModelInfo->GetModelIndex("models/weapons/v_models/arms/glove_bloodhound/v_glove_bloodhound.mdl"));
-										pWeapon_g->PreDataUpdate(0);
-
-										if (Glove_skin != 0 && Glove_skin != 1 && Glove_skin != 2)
-										{
-
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemDefinitionIndex() = 5027;
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemIDHigh() = -1;
-											*pWeapon_g->FallbackPaintKit() = 10006;
-											((IClientEntity*)pWeapon_g)->SetModelIndexVirtual(Interfaces::ModelInfo->GetModelIndex("models/weapons/v_models/arms/glove_bloodhound/v_glove_bloodhound.mdl"));
-											pWeapon_g->PreDataUpdate(0);
-										}
-										else if (Glove_skin == 0)
-										{
-
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemDefinitionIndex() = 5027;
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemIDHigh() = -1;
-											*pWeapon_g->FallbackPaintKit() = 10006;
-											((IClientEntity*)pWeapon_g)->SetModelIndexVirtual(Interfaces::ModelInfo->GetModelIndex("models/weapons/v_models/arms/glove_bloodhound/v_glove_bloodhound.mdl"));
-											pWeapon_g->PreDataUpdate(0);
-										}
-										else if (Glove_skin == 1)
-										{
-
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemDefinitionIndex() = 5027;
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemIDHigh() = -1;
-											*pWeapon_g->FallbackPaintKit() = 10007;
-											((IClientEntity*)pWeapon_g)->SetModelIndexVirtual(Interfaces::ModelInfo->GetModelIndex("models/weapons/v_models/arms/glove_bloodhound/v_glove_bloodhound.mdl"));
-											pWeapon_g->PreDataUpdate(0);
-										}
-										else if (Glove_skin == 2)
-										{
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemDefinitionIndex() = 5027;
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemIDHigh() = -1;
-											*pWeapon_g->FallbackPaintKit() = 10008;
-											((IClientEntity*)pWeapon_g)->SetModelIndexVirtual(Interfaces::ModelInfo->GetModelIndex("models/weapons/v_models/arms/glove_bloodhound/v_glove_bloodhound.mdl"));
-											pWeapon_g->PreDataUpdate(0);
-										}
-
-									}
-									if (Glove_model == 1)
-									{
-
-										*pWeapon_g->m_AttributeManager()->m_Item()->ItemDefinitionIndex() = 5030;
-										*pWeapon_g->m_AttributeManager()->m_Item()->ItemIDHigh() = -1;
-										((IClientEntity*)pWeapon_g)->SetModelIndexVirtual(Interfaces::ModelInfo->GetModelIndex("models/weapons/v_models/arms/glove_sporty/v_glove_sporty.mdl"));
-										pWeapon_g->PreDataUpdate(0);
-
-										if (Glove_skin != 3 && Glove_skin != 4 && Glove_skin != 5 && Glove_skin != 6)
-										{
-
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemDefinitionIndex() = 5030;
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemIDHigh() = -1;
-											*pWeapon_g->FallbackPaintKit() = 10037;
-											((IClientEntity*)pWeapon_g)->SetModelIndexVirtual(Interfaces::ModelInfo->GetModelIndex("models/weapons/v_models/arms/glove_sporty/v_glove_sporty.mdl"));
-											pWeapon_g->PreDataUpdate(0);
-										}
-										else if (Glove_skin == 3)
-										{
-
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemDefinitionIndex() = 5030;
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemIDHigh() = -1;
-											*pWeapon_g->FallbackPaintKit() = 10037;
-											((IClientEntity*)pWeapon_g)->SetModelIndexVirtual(Interfaces::ModelInfo->GetModelIndex("models/weapons/v_models/arms/glove_sporty/v_glove_sporty.mdl"));
-											pWeapon_g->PreDataUpdate(0);
-										}
-
-										else if (Glove_skin == 4)
-										{
-
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemDefinitionIndex() = 5030;
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemIDHigh() = -1;
-											*pWeapon_g->FallbackPaintKit() = 10038;
-											((IClientEntity*)pWeapon_g)->SetModelIndexVirtual(Interfaces::ModelInfo->GetModelIndex("models/weapons/v_models/arms/glove_sporty/v_glove_sporty.mdl"));
-											pWeapon_g->PreDataUpdate(0);
-										}
-
-										else if (Glove_skin == 5)
-										{
-
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemDefinitionIndex() = 5030;
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemIDHigh() = -1;
-											*pWeapon_g->FallbackPaintKit() = 10018;
-											((IClientEntity*)pWeapon_g)->SetModelIndexVirtual(Interfaces::ModelInfo->GetModelIndex("models/weapons/v_models/arms/glove_sporty/v_glove_sporty.mdl"));
-											pWeapon_g->PreDataUpdate(0);
-										}
-
-										else if (Glove_skin == 6)
-										{
-
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemDefinitionIndex() = 5030;
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemIDHigh() = -1;
-											*pWeapon_g->FallbackPaintKit() = 10019;
-											((IClientEntity*)pWeapon_g)->SetModelIndexVirtual(Interfaces::ModelInfo->GetModelIndex("models/weapons/v_models/arms/glove_sporty/v_glove_sporty.mdl"));
-											pWeapon_g->PreDataUpdate(0);
-										}
-									}
-									if (Glove_model == 2)
-									{
-
-										*pWeapon_g->m_AttributeManager()->m_Item()->ItemDefinitionIndex() = 5027;
-										*pWeapon_g->m_AttributeManager()->m_Item()->ItemIDHigh() = -1;
-										((IClientEntity*)pWeapon_g)->SetModelIndexVirtual(Interfaces::ModelInfo->GetModelIndex("models/weapons/v_models/arms/glove_slick/v_glove_slick.mdl"));
-										pWeapon_g->PreDataUpdate(0);
-
-										if (Glove_skin != 7 && Glove_skin != 8 && Glove_skin != 9)
-										{
-
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemDefinitionIndex() = 5031;
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemIDHigh() = -1;
-											*pWeapon_g->FallbackPaintKit() = 10013;
-											((IClientEntity*)pWeapon_g)->SetModelIndexVirtual(Interfaces::ModelInfo->GetModelIndex("models/weapons/v_models/arms/glove_slick/v_glove_slick.mdl"));
-											pWeapon_g->PreDataUpdate(0);
-										}
-										else if (Glove_skin == 7)
-										{
-
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemDefinitionIndex() = 5031;
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemIDHigh() = -1;
-											*pWeapon_g->FallbackPaintKit() = 10013;
-											((IClientEntity*)pWeapon_g)->SetModelIndexVirtual(Interfaces::ModelInfo->GetModelIndex("models/weapons/v_models/arms/glove_slick/v_glove_slick.mdl"));
-											pWeapon_g->PreDataUpdate(0);
-										}
-										else if (Glove_skin == 8)
-										{
-
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemDefinitionIndex() = 5031;
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemIDHigh() = -1;
-											*pWeapon_g->FallbackPaintKit() = 10015;
-											((IClientEntity*)pWeapon_g)->SetModelIndexVirtual(Interfaces::ModelInfo->GetModelIndex("models/weapons/v_models/arms/glove_slick/v_glove_slick.mdl"));
-											pWeapon_g->PreDataUpdate(0);
-										}
-										else if (Glove_skin == 9)
-										{
-
-
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemDefinitionIndex() = 5031;
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemIDHigh() = -1;
-											*pWeapon_g->FallbackPaintKit() = 10016;
-											((IClientEntity*)pWeapon_g)->SetModelIndexVirtual(Interfaces::ModelInfo->GetModelIndex("models/weapons/v_models/arms/glove_slick/v_glove_slick.mdl"));
-											pWeapon_g->PreDataUpdate(0);
-										}
-									}
-									if (Glove_model == 3)
-									{
-
-										*pWeapon_g->m_AttributeManager()->m_Item()->ItemDefinitionIndex() = 5034;
-										*pWeapon_g->m_AttributeManager()->m_Item()->ItemIDHigh() = -1;
-										((IClientEntity*)pWeapon_g)->SetModelIndexVirtual(Interfaces::ModelInfo->GetModelIndex("models/weapons/v_models/arms/glove_specialist/v_glove_specialist.mdl"));
-										pWeapon_g->PreDataUpdate(0);
-										if (Glove_skin != 10 && Glove_skin != 11 && Glove_skin != 12 && Glove_skin != 13)
-										{
-
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemDefinitionIndex() = 5034;
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemIDHigh() = -1;
-											*pWeapon_g->FallbackPaintKit() = 10030;
-											((IClientEntity*)pWeapon_g)->SetModelIndexVirtual(Interfaces::ModelInfo->GetModelIndex("models/weapons/v_models/arms/glove_specialist/v_glove_specialist.mdl"));
-											pWeapon_g->PreDataUpdate(0);
-										}
-										else if (Glove_skin == 10)
-										{
-
-
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemDefinitionIndex() = 5034;
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemIDHigh() = -1;
-											*pWeapon_g->FallbackPaintKit() = 10030;
-											((IClientEntity*)pWeapon_g)->SetModelIndexVirtual(Interfaces::ModelInfo->GetModelIndex("models/weapons/v_models/arms/glove_specialist/v_glove_specialist.mdl"));
-											pWeapon_g->PreDataUpdate(0);
-										}
-										else if (Glove_skin == 11)
-										{
-
-
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemDefinitionIndex() = 5034;
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemIDHigh() = -1;
-											*pWeapon_g->FallbackPaintKit() = 10033;
-											((IClientEntity*)pWeapon_g)->SetModelIndexVirtual(Interfaces::ModelInfo->GetModelIndex("models/weapons/v_models/arms/glove_specialist/v_glove_specialist.mdl"));
-											pWeapon_g->PreDataUpdate(0);
-										}
-										else if (Glove_skin == 12)
-										{
-
-
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemDefinitionIndex() = 5034;
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemIDHigh() = -1;
-											*pWeapon_g->FallbackPaintKit() = 10034;
-											((IClientEntity*)pWeapon_g)->SetModelIndexVirtual(Interfaces::ModelInfo->GetModelIndex("models/weapons/v_models/arms/glove_specialist/v_glove_specialist.mdl"));
-											pWeapon_g->PreDataUpdate(0);
-										}
-										else if (Glove_skin == 13)
-										{
-
-
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemDefinitionIndex() = 5034;
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemIDHigh() = -1;
-											*pWeapon_g->FallbackPaintKit() = 10035;
-											((IClientEntity*)pWeapon_g)->SetModelIndexVirtual(Interfaces::ModelInfo->GetModelIndex("models/weapons/v_models/arms/glove_specialist/v_glove_specialist.mdl"));
-											pWeapon_g->PreDataUpdate(0);
-										}
-									}
-									if (Glove_model == 4)
-									{
-
-										*pWeapon_g->m_AttributeManager()->m_Item()->ItemDefinitionIndex() = 5033;
-										*pWeapon_g->m_AttributeManager()->m_Item()->ItemIDHigh() = -1;
-										((IClientEntity*)pWeapon_g)->SetModelIndexVirtual(Interfaces::ModelInfo->GetModelIndex("models/weapons/v_models/arms/glove_motorcycle/v_glove_motorcycle.mdl"));
-										pWeapon_g->PreDataUpdate(0);
-										if (Glove_skin != 14 && Glove_skin != 15 && Glove_skin != 16 && Glove_skin != 17)
-										{
-
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemDefinitionIndex() = 5033;
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemIDHigh() = -1;
-											*pWeapon_g->FallbackPaintKit() = 10024;
-											((IClientEntity*)pWeapon_g)->SetModelIndexVirtual(Interfaces::ModelInfo->GetModelIndex("models/weapons/v_models/arms/glove_motorcycle/v_glove_motorcycle.mdl"));
-											pWeapon_g->PreDataUpdate(0);
-										}
-										else if (Glove_skin == 14)
-										{
-
-
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemDefinitionIndex() = 5033;
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemIDHigh() = -1;
-											*pWeapon_g->FallbackPaintKit() = 10026;
-											((IClientEntity*)pWeapon_g)->SetModelIndexVirtual(Interfaces::ModelInfo->GetModelIndex("models/weapons/v_models/arms/glove_motorcycle/v_glove_motorcycle.mdl"));
-											pWeapon_g->PreDataUpdate(0);
-										}
-										else if (Glove_skin == 15)
-										{
-
-
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemDefinitionIndex() = 5033;
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemIDHigh() = -1;
-											*pWeapon_g->FallbackPaintKit() = 10027;
-											((IClientEntity*)pWeapon_g)->SetModelIndexVirtual(Interfaces::ModelInfo->GetModelIndex("models/weapons/v_models/arms/glove_motorcycle/v_glove_motorcycle.mdl"));
-											pWeapon_g->PreDataUpdate(0);
-										}
-										else if (Glove_skin == 16)
-										{
-
-
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemDefinitionIndex() = 5033;
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemIDHigh() = -1;
-											*pWeapon_g->FallbackPaintKit() = 10028;
-											((IClientEntity*)pWeapon_g)->SetModelIndexVirtual(Interfaces::ModelInfo->GetModelIndex("models/weapons/v_models/arms/glove_motorcycle/v_glove_motorcycle.mdl"));
-											pWeapon_g->PreDataUpdate(0);
-										}
-										else if (Glove_skin == 17)
-										{
-
-
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemDefinitionIndex() = 5033;
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemIDHigh() = -1;
-											*pWeapon_g->FallbackPaintKit() = 10024;
-											((IClientEntity*)pWeapon_g)->SetModelIndexVirtual(Interfaces::ModelInfo->GetModelIndex("models/weapons/v_models/arms/glove_motorcycle/v_glove_motorcycle.mdl"));
-											pWeapon_g->PreDataUpdate(0);
-										}
-									}
-									if (Glove_model == 5)
-									{
-
-										*pWeapon_g->m_AttributeManager()->m_Item()->ItemDefinitionIndex() = 5032;
-										*pWeapon_g->m_AttributeManager()->m_Item()->ItemIDHigh() = -1;
-										((IClientEntity*)pWeapon_g)->SetModelIndexVirtual(Interfaces::ModelInfo->GetModelIndex("models/weapons/v_models/arms/glove_handwrap_leathery/v_glove_handwrap_leathery.mdl"));
-										pWeapon_g->PreDataUpdate(0);
-										if (Glove_skin != 18 && Glove_skin != 19 && Glove_skin != 20 && Glove_skin != 21)
-										{
-
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemDefinitionIndex() = 5032;
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemIDHigh() = -1;
-											*pWeapon_g->FallbackPaintKit() = 10009;
-											((IClientEntity*)pWeapon_g)->SetModelIndexVirtual(Interfaces::ModelInfo->GetModelIndex("models/weapons/v_models/arms/glove_handwrap_leathery/v_glove_handwrap_leathery.mdl"));
-											pWeapon_g->PreDataUpdate(0);
-										}
-										else if (Glove_skin == 18)
-										{
-
-
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemDefinitionIndex() = 5032;
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemIDHigh() = -1;
-											*pWeapon_g->FallbackPaintKit() = 10009;
-											((IClientEntity*)pWeapon_g)->SetModelIndexVirtual(Interfaces::ModelInfo->GetModelIndex("models/weapons/v_models/arms/glove_handwrap_leathery/v_glove_handwrap_leathery.mdl"));
-											pWeapon_g->PreDataUpdate(0);
-										}
-										else if (Glove_skin == 19)
-										{
-
-
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemDefinitionIndex() = 5032;
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemIDHigh() = -1;
-											*pWeapon_g->FallbackPaintKit() = 10010;
-											((IClientEntity*)pWeapon_g)->SetModelIndexVirtual(Interfaces::ModelInfo->GetModelIndex("models/weapons/v_models/arms/glove_handwrap_leathery/v_glove_handwrap_leathery.mdl"));
-											pWeapon_g->PreDataUpdate(0);
-										}
-										else if (Glove_skin == 20)
-										{
-
-
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemDefinitionIndex() = 5032;
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemIDHigh() = -1;
-											*pWeapon_g->FallbackPaintKit() = 10021;
-											((IClientEntity*)pWeapon_g)->SetModelIndexVirtual(Interfaces::ModelInfo->GetModelIndex("models/weapons/v_models/arms/glove_handwrap_leathery/v_glove_handwrap_leathery.mdl"));
-											pWeapon_g->PreDataUpdate(0);
-										}
-										else if (Glove_skin == 21)
-										{
-
-
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemDefinitionIndex() = 5032;
-											*pWeapon_g->m_AttributeManager()->m_Item()->ItemIDHigh() = -1;
-											*pWeapon_g->FallbackPaintKit() = 10036;
-											((IClientEntity*)pWeapon_g)->SetModelIndexVirtual(Interfaces::ModelInfo->GetModelIndex("models/weapons/v_models/arms/glove_handwrap_leathery/v_glove_handwrap_leathery.mdl"));
-											pWeapon_g->PreDataUpdate(0);
-										}
-									}
-								}
-							}
-
 
 						if (Menu::Window.MiscTab.SkinEnable.GetState())
 						{
@@ -2363,7 +1972,7 @@ void  __stdcall Hooked_FrameStageNotify(ClientFrameStage_t curStage)
 							int Magnum = Menu::Window.SkinchangerTab.RevolverSkin.GetIndex();
 							int Duals = Menu::Window.SkinchangerTab.DUALSSkin.GetIndex();
 
-							/*if (pEntity->GetClientClass()->m_ClassID != (int)CSGOClassID::CKnife)
+							if (pEntity->GetClientClass()->m_ClassID != (int)CSGOClassID::CKnife)
 							{
 								if (Menu::Window.SkinchangerTab.SkinName.getText().length() > 1)
 								{
@@ -2379,14 +1988,8 @@ void  __stdcall Hooked_FrameStageNotify(ClientFrameStage_t curStage)
 								if (Menu::Window.SkinchangerTab.StatTrakEnable.GetState())
 									*pWeapon->FallbackStatTrak() = st;
 							}
-							CBaseCombatWeapon* pWeapon = (CBaseCombatWeapon*)pEntity;
-							if (GameUtils::IsG(pWeapon))
-								return; */
-							
-							if (GameUtils::IsBallisticWeapon(pWeapon)&& GameUtils::IsMachinegun(pWeapon) && GameUtils::IsMP(pWeapon) && GameUtils::IsPistol(pWeapon) && GameUtils::IsScopedWeapon(pWeapon) && GameUtils::IsShotgun(pWeapon) && GameUtils::IsSniper(pWeapon) && GameUtils::AWP(pWeapon))
-								return;
 
-							int weapon = *pWeapon->m_AttributeManager()->m_Item()->ItemDefinitionIndex();//crash with nade?
+							int weapon = *pWeapon->m_AttributeManager()->m_Item()->ItemDefinitionIndex();
 							
 							switch (weapon)
 							{
@@ -5016,32 +4619,12 @@ void  __stdcall Hooked_FrameStageNotify(ClientFrameStage_t curStage)
 							*pWeapon->OwnerXuidHigh() = 0;
 							*pWeapon->FallbackWear() = 0.000001f;
 							*pWeapon->m_AttributeManager()->m_Item()->ItemIDHigh() = 1;
-
 						}
 					}
 				}
-
-			}/*
-			for (int i = 1; i <= Interfaces::Engine->GetMaxClients(); ++i)
-			{
-				IClientEntity *pEntity = Interfaces::EntList->GetClientEntity(i);
-
-				if (!pEntity || !pLocal) {
-					continue;
-				}
-
-				if (pEntity->GetTeamNum() == pLocal->GetTeamNum()) {
-					continue;
-				}
-
-				if (pEntity->IsDormant() || !pLocal->IsAlive() || !pEntity->IsAlive()) {
-					continue;
-				}
-				//lagComp->log(curStage);
-			}*/
+			}
 		}
-	}}
-
+	}
 	oFrameStageNotify(curStage);
 }
 
