@@ -1870,6 +1870,7 @@ void  __stdcall Hooked_FrameStageNotify(ClientFrameStage_t curStage)
 	}
 	if (Interfaces::Engine->IsConnected() && Interfaces::Engine->IsInGame() && curStage == FRAME_NET_UPDATE_POSTDATAUPDATE_START)
 	{
+		#define RandomInt(nMin, nMax) (rand() % (nMax - nMin + 1) + nMin);
 		IClientEntity *pLocal = Interfaces::EntList->GetClientEntity(Interfaces::Engine->GetLocalPlayer());
 
 		int iBayonet = Interfaces::ModelInfo->GetModelIndex("models/weapons/v_knife_bayonet.mdl");
@@ -1900,7 +1901,7 @@ void  __stdcall Hooked_FrameStageNotify(ClientFrameStage_t curStage)
 					{
 						if (pOwner == pLocal)
 						{
-							std::string sWeapon = Interfaces::ModelInfo->GetModelName(pEntity->GetModel());
+							/*std::string sWeapon = Interfaces::ModelInfo->GetModelName(pEntity->GetModel());
 
 
 							if (sWeapon.find("models/weapons", 0) != std::string::npos)
@@ -1934,7 +1935,7 @@ void  __stdcall Hooked_FrameStageNotify(ClientFrameStage_t curStage)
 								continue;
 
 							if (sWeapon.find("w_eq_", 0) != std::string::npos)
-								continue;
+								continue;*/
 
 							CBaseCombatWeapon* pWeapon = (CBaseCombatWeapon*)pEntity;
 
