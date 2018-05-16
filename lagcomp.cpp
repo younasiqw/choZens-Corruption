@@ -440,6 +440,7 @@ void Backtrack::legitBacktrack(CUserCmd* cmd, IClientEntity* pLocal)
 	if (Menu::Window.LegitBotTab.FakeLagFix.GetState() || Menu::Window.RageBotTab.FakeLagFix.GetState())
 	{
 		int bestTargetIndex = -1;
+		int tickxd = Menu::Window.LegitBotTab.TickModulation.GetValue();
 		float bestFov = FLT_MAX;
 		player_info_t info;
 		if (!pLocal->IsAlive())
@@ -477,9 +478,13 @@ void Backtrack::legitBacktrack(CUserCmd* cmd, IClientEntity* pLocal)
 				Vector hitboxPoschest = GetHitboxPosition(entity, 4);
 				Vector hitboxPospelvis = GetHitboxPosition(entity, 7);
 
-				headPositions[i][cmd->command_number % 13] = backtrackData{ simtime, hitboxPos };
-				chestPositions[i][cmd->command_number % 13] = backtrackData{ simtime, hitboxPoschest };
-				pelvisPositions[i][cmd->command_number % 13] = backtrackData{ simtime, hitboxPospelvis };
+				//headPositions[i][cmd->command_number % 13] = backtrackData{ simtime, hitboxPos };
+				//chestPositions[i][cmd->command_number % 13] = backtrackData{ simtime, hitboxPoschest };
+				//pelvisPositions[i][cmd->command_number % 13] = backtrackData{ simtime, hitboxPospelvis };
+
+				headPositions[i][cmd->command_number % tickxd] = backtrackData{ simtime, hitboxPos };
+				chestPositions[i][cmd->command_number % tickxd] = backtrackData{ simtime, hitboxPoschest };
+				pelvisPositions[i][cmd->command_number % tickxd] = backtrackData{ simtime, hitboxPospelvis };
 
 				float FOVDistance;
 				if (Menu::Window.LegitBotTab.FakeLagFix.GetState())

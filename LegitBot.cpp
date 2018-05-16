@@ -130,8 +130,8 @@ void CLegitBot::LegitAA(CUserCmd *pCmd, bool& bSendPacket)
 
 void CLegitBot::Move(CUserCmd *pCmd, bool& bSendPacket)
 {
-	if (Menu::Window.RageBotTab.AimbotEnable.GetState())
-		return;
+	/*if (Menu::Window.RageBotTab.AimbotEnable.GetState())
+		return;*/
 
 	IClientEntity* pLocal = hackManager.pLocal();
 	CBaseCombatWeapon* pWeapon = (CBaseCombatWeapon*)Interfaces::EntList->GetClientEntityFromHandle(pLocal->GetActiveWeaponHandle());

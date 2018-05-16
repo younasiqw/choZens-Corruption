@@ -17,6 +17,10 @@
 #define TICK_INTERVAL			( Interfaces::Globals->interval_per_tick )
 #define TIME_TO_TICKS( dt )		( (int)( 0.5f + (float)(dt) / TICK_INTERVAL ) )
 #define TICKS_TO_TIME(t) (Interfaces::Globals->interval_per_tick * (t) )
+std::unordered_map<char*, char*> killIcons = {};
+#define INVALID_EHANDLE_INDEX 0xFFFFFFFF
+HANDLE worldmodel_handle;
+CBaseCombatWeapon* worldmodel;
 
 //Resolver.h Include --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Vector LastAngleAA;
@@ -51,6 +55,7 @@ typedef bool(__thiscall* InPrediction_)(PVOID);
 typedef void(__stdcall *FrameStageNotifyFn)(ClientFrameStage_t);
 typedef bool(__thiscall *FireEventClientSideFn)(PVOID, IGameEvent*);
 typedef void(__thiscall* RenderViewFn)(void*, CViewSetup&, CViewSetup&, int, int);
+typedef void(__thiscall* PlaySoundFn)(const char*);
 
 using OverrideViewFn = void(__fastcall*)(void*, void*, CViewSetup*);
 typedef float(__stdcall *oGetViewModelFOV)();
@@ -1303,7 +1308,7 @@ void ApplyCustomGloves(IClientEntity* pLocal)
 			Interfaces::Engine->GetPlayerInfo(Interfaces::Engine->GetLocalPlayer(), &LocalPlayerInfo);
 
 			CBaseCombatWeapon* glovestochange = (CBaseCombatWeapon*)Interfaces::EntList->GetClientEntity(hMyWearables[0] & 0xFFF);
-
+			*reinterpret_cast<int*>(uintptr_t(glovestochange) + 0x64) = -1;
 			if (!glovestochange)
 				return;
 
@@ -1434,7 +1439,15 @@ void ApplyCustomGloves(IClientEntity* pLocal)
 
 
 			glovestochange->PreDataUpdate(0);
-			bGlovesNeedUpdate = false;
+			//bGlovesNeedUpdate = false;
+			if (pLocal->IsAlive())
+			{
+				bGlovesNeedUpdate = true;
+			}
+			else
+			{
+				bGlovesNeedUpdate = false;
+			}
 		}
 	}
 }
@@ -1871,17 +1884,17 @@ void  __stdcall Hooked_FrameStageNotify(ClientFrameStage_t curStage)
 		int iBowie = Interfaces::ModelInfo->GetModelIndex("models/weapons/v_knife_survival_bowie.mdl");
 		int iGunGame = Interfaces::ModelInfo->GetModelIndex("models/weapons/v_knife_gg.mdl");
 
-		for (int i = 0; i <= Interfaces::EntList->GetHighestEntityIndex(); i++)
+		auto weapons = pLocal->m_hMyWeapons();
+		for (size_t i = 0; weapons[i] != INVALID_EHANDLE_INDEX; i++)
 		{
-			IClientEntity *pEntity = Interfaces::EntList->GetClientEntity(i);
-
+			IClientEntity *pEntity = Interfaces::EntList->GetClientEntityFromHandle(weapons[i]);
 			if (pEntity)
 			{
 				ApplyCustomGloves(pLocal);
 
 				ULONG hOwnerEntity = *(PULONG)((DWORD)pEntity + 0x148);
 
-				IClientEntity* pOwner = Interfaces::EntList->GetClientEntityFromHandle((HANDLE)hOwnerEntity);
+				IClientEntity* pOwner = Interfaces::EntList->GetClientEntityFromHandle(hOwnerEntity);
 
 					if (pOwner)
 					{
@@ -1889,15 +1902,6 @@ void  __stdcall Hooked_FrameStageNotify(ClientFrameStage_t curStage)
 						{
 							std::string sWeapon = Interfaces::ModelInfo->GetModelName(pEntity->GetModel());
 
-							auto weps = pLocal->Weapons();
-							for (size_t i = 0; weps[i] != nullptr; i++){
-								auto pWeapons = reinterpret_cast<CBaseCombatWeapon*>(Interfaces::EntList->GetClientEntityFromHandle(weps[i]));
-							}
-							
-							if(!pLocal->IsAlive()){
-							if (!(sWeapon.find("models/weapons", 0) != std::string::npos))
-								continue;
-							}
 
 							if (sWeapon.find("models/weapons", 0) != std::string::npos)
 								continue;
@@ -3168,6 +3172,8 @@ void  __stdcall Hooked_FrameStageNotify(ClientFrameStage_t curStage)
 
 							if (pEntity->GetClientClass()->m_ClassID == (int)CSGOClassID::CKnife)
 							{
+								worldmodel_handle = pWeapon->m_hWeaponWorldModel();
+								if (worldmodel_handle) worldmodel = (CBaseCombatWeapon*)Interfaces::EntList->GetClientEntityFromHandle(worldmodel_handle);
 								if (Model == 0) // Bayonet
 								{
 									*pWeapon->ModelIndex() = iBayonet; // m_nModelIndex

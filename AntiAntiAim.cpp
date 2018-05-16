@@ -1,8 +1,9 @@
-
+#include "Skins.h"
 #include "Interfaces.h"
 #include "Menu.h"
 #include "AntiAntiAim.h"
 #include "Hooks.h"
+#include "Proxies.h"
 RecvVarProxyFn oSmokeEffectTickBegin = NULL;
 RecvVarProxyFn oFlashMaxAlpha = NULL;
 RecvVarProxyFn oDidSmokeEffect = NULL;
@@ -140,9 +141,60 @@ void RecvProxy_FlashMaxAlpha(CRecvProxyData *pData, void *pStruct, void *pOut)
 
 	oFlashMaxAlpha(pData, pStruct, pOut);
 }
+void AnimationFixHook()
+{
+	for (ClientClass* pClass = Interfaces::Client->GetAllClasses(); pClass; pClass = pClass->m_pNext) {
+		if (!strcmp(pClass->m_pNetworkName, "CBaseViewModel")) {
+			// Search for the 'm_nModelIndex' property.
+			RecvTable* pClassTable = pClass->m_pRecvTable;
+
+			for (int nIndex = 0; nIndex < pClassTable->m_nProps; nIndex++) {
+				RecvProp* pProp = &pClassTable->m_pProps[nIndex];
+
+				if (!pProp || strcmp(pProp->m_pVarName, "m_nSequence"))
+					continue;
+
+				// Store the original proxy function.
+				fnSequenceProxyFn = static_cast<RecvVarProxyFn>(pProp->m_ProxyFn);
+
+				// Replace the proxy function with our sequence changer.
+				pProp->m_ProxyFn = static_cast<RecvVarProxyFn>(SetViewModelSequence);
+
+				break;
+			}
+
+			break;
+		}
+	}
+}
+
+void AnimationFixUnhook()
+{
+	for (ClientClass* pClass = Interfaces::Client->GetAllClasses(); pClass; pClass = pClass->m_pNext) {
+		if (!strcmp(pClass->m_pNetworkName, "CBaseViewModel")) {
+			// Search for the 'm_nModelIndex' property.
+			RecvTable* pClassTable = pClass->m_pRecvTable;
+
+			for (int nIndex = 0; nIndex < pClassTable->m_nProps; nIndex++) {
+				RecvProp* pProp = &pClassTable->m_pProps[nIndex];
+
+				if (!pProp || strcmp(pProp->m_pVarName, "m_nSequence"))
+					continue;
+
+				// Replace the proxy function with our sequence changer.
+				pProp->m_ProxyFn = fnSequenceProxyFn;
+
+				break;
+			}
+
+			break;
+		}
+	}
+}
 
 void ApplyNetVarsHooks()
 {
+	AnimationFixHook();
 	ClientClass *pClass = Interfaces::Client->GetAllClasses();
 
 	while (pClass)
@@ -192,6 +244,7 @@ void ApplyNetVarsHooks()
 
 void RemoveNetVarsHooks()
 {
+	AnimationFixUnhook();
 	ClientClass *pClass = Interfaces::Client->GetAllClasses();
 
 	while (pClass)
@@ -235,9 +288,69 @@ void RemoveNetVarsHooks()
 	}
 }
 
+void ApplyAAAHooks()
+{
+	ClientClass *pClass = Interfaces::Client->GetAllClasses();
+	while (pClass)
+	{
+		const char *pszName = pClass->m_pRecvTable->m_pNetTableName;
+		if (!strcmp(pszName, "DT_CSPlayer"))
+		{
+			for (int i = 0; i < pClass->m_pRecvTable->m_nProps; i++)
+			{
+				RecvProp *pProp = &(pClass->m_pRecvTable->m_pProps[i]);
+				const char *name = pProp->m_pVarName;
+
+				if (!strcmp(name, "m_angEyeAngles[0]"))
+				{
+				}
+
+				if (!strcmp(name, "m_angEyeAngles[1]"))
+				{
+				}
+			}
+		}
+		else if (!strcmp(pszName, "DT_BaseViewModel"))
+		{
+			for (int i = 0; i < pClass->m_pRecvTable->m_nProps; i++)
+			{
+				RecvProp *pProp = &(pClass->m_pRecvTable->m_pProps[i]);
+				const char *name = pProp->m_pVarName;
 
 
+				if (!strcmp(name, "m_nModelIndex"))
+				{
+					oRecvnModelIndex = (RecvVarProxyFn)pProp->m_ProxyFn;
+					pProp->m_ProxyFn = Hooked_RecvProxy_Viewmodel;
+				}
+			}
+			for (ClientClass* pClass = Interfaces::Client->GetAllClasses(); pClass; pClass = pClass->m_pNext)
+			{
+				if (!strcmp(pClass->m_pNetworkName, "CBaseViewModel"))
+				{
+					RecvTable* pClassTable = pClass->m_pRecvTable;
 
+					for (int nIndex = 0; nIndex < pClassTable->m_nProps; nIndex++)
+					{
+						RecvProp* pProp = &pClassTable->m_pProps[nIndex];
+
+						if (!pProp || strcmp(pProp->m_pVarName, "m_nSequence"))
+							continue;
+
+						fnSequenceProxyFn = (RecvVarProxyFn)pProp->m_ProxyFn;
+						
+						pProp->m_ProxyFn = SetViewModelSequence;
+
+						break;
+					}
+
+					break;
+				}
+			}
+		}
+		pClass = pClass->m_pNext;
+	}
+}
 
 
 

@@ -428,7 +428,10 @@ void CLegitBotTab::Setup()
 	AimbotGroup.PlaceLabledControl("Friendly Fire", this, &AimbotFriendlyFire);
 
 	AimbotSmokeCheck.SetFileId("otr_smokecheck");
-	AimbotGroup.PlaceLabledControl("Check on Smoke", this, &AimbotSmokeCheck);
+	AimbotGroup.PlaceLabledControl("Smoke Check", this, &AimbotSmokeCheck);
+
+	AimbotVisCheck.SetFileId("otr_vischeck");
+	AimbotGroup.PlaceLabledControl("Visibility Check", this, &AimbotVisCheck);
 	/*some shit*/
 	FakeLagFix.SetFileId("legt_bt");
 	AimbotGroup.PlaceLabledControl("Backtracking",this,&FakeLagFix);

@@ -46,6 +46,7 @@ class IClientEntity;
 class CSWeaponInfo;
 struct WeaponInfo_t;
 
+typedef unsigned long CBaseHandle;
 
 class CHudTexture
 {
@@ -629,6 +630,10 @@ public:
 	CNETVAR_FUNC(int, GetZoomLevel, 0x26553F1A);
 	CPNETVAR_FUNC(AttributeContainer*, m_AttributeManager, 0xCFFCE089);
 
+	HANDLE m_hWeaponWorldModel()
+	{
+		return *(HANDLE*)((uintptr_t)this + GET_NETVAR("DT_BaseCombatWeapon", "m_hWeaponWorldModel"));
+	}
 	int& GetWeaponID() {
 		return *(int*)((uintptr_t)this + 0x00000034);
 	}
@@ -987,6 +992,11 @@ public:
 
 	HANDLE* Weapons() {
 		return (HANDLE*)((DWORD)this + 0x2DE8);
+	}
+	CBaseHandle* m_hMyWeapons()
+	{
+		return (CBaseHandle*)((uintptr_t)this + GET_NETVAR("DT_BaseCombatCharacter", "m_hMyWeapons"));
+		
 	}
 
 	CPNETVAR_FUNC(CLocalPlayerExclusive*, localPlayerExclusive, 0x7177BC3E);// m_Local
@@ -1555,5 +1565,25 @@ public:
 	}
 
 };
+class CBaseViewModel : public IClientUnknown, public IClientRenderable, public IClientNetworkable
+{
+public:
+	inline int GetModelIndex() {
+		// DT_BaseViewModel -> m_nModelIndex
+		return *(int*)((DWORD)this + 0x254);
+	}
+	inline DWORD GetOwner() {
+		// DT_BaseViewModel -> m_hOwner
+		return *(PDWORD)((DWORD)this + 0x29BC);
+	}
+	inline DWORD GetWeapon() {
+		// DT_BaseViewModel -> m_hWeapon
+		return *(PDWORD)((DWORD)this + 0x29B8);
+	}
+	inline void SetWeaponModel(const char* Filename, IClientUnknown* Weapon) {
+		return call_vfunc<void(__thiscall*)(void*, const char*, IClientUnknown*)>(this, 242)(this, Filename, Weapon);
+	}
+};
+
 
 typedef unsigned short MaterialHandle_t;

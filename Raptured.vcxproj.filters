@@ -231,6 +231,12 @@
     <ClInclude Include="XorStr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Proxies.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Skins.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DLLMain.cpp">

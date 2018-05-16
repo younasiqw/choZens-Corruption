@@ -155,8 +155,10 @@
     <ClInclude Include="lagcomp.h" />
     <ClInclude Include="NightMode.h" />
     <ClInclude Include="oofsetts.h" />
+    <ClInclude Include="Proxies.h" />
     <ClInclude Include="Resolver.h" />
     <ClInclude Include="singleton.h" />
+    <ClInclude Include="Skins.h" />
     <ClInclude Include="winwindef.h" />
     <ClInclude Include="Hooks.h" />
     <ClInclude Include="INJ\ReflectiveDLLInjection.h" />

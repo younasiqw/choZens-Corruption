@@ -29,6 +29,12 @@ public:
 	virtual int					GetHighestEntityIndex(void);
 	virtual void				SetMaxEntities(int maxents);
 	virtual int					GetMaxEntities();
+
+	IClientEntity *GetClientEntityFromHandle(CBaseHandle hEnt)
+	{
+		typedef IClientEntity* (__thiscall* OriginalFn)(PVOID, CBaseHandle);
+		return call_vfunc<OriginalFn>(this, 4)(this, hEnt);
+	}
 };
 
 struct CViewSetup

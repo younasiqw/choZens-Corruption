@@ -799,7 +799,6 @@ void CEsp::drawBacktrackedSkelet(IClientEntity *base, player_info_t pinfo)
 					else
 					{
 						memset(&headPositions[0][0], 0, sizeof(headPositions));
-						memset(&bonematrices[0][0], 0, sizeof(bonematrices));
 					}
 				}
 				else if (!Menu::Window.VisualsTab.LegitMode1.GetState())
@@ -815,6 +814,24 @@ void CEsp::drawBacktrackedSkelet(IClientEntity *base, player_info_t pinfo)
 							if (headPositions[i][t].simtime && headPositions[i][t].simtime + 1 > pLocal->GetSimulationTime())
 							{
 								if (Render::WorldToScreen(headPositions[i][t].hitboxPos, screenbacktrack[i][t]))
+								{
+
+									Interfaces::Surface->DrawSetColor(Color::Green());
+									Interfaces::Surface->DrawOutlinedRect(screenbacktrack[i][t].x, screenbacktrack[i][t].y, screenbacktrack[i][t].x + 2, screenbacktrack[i][t].y + 2);
+								}
+							}
+							if (chestPositions[i][t].simtime && chestPositions[i][t].simtime + 1 > pLocal->GetSimulationTime())
+							{
+								if (Render::WorldToScreen(chestPositions[i][t].hitboxPos, screenbacktrack[i][t]))
+								{
+
+									Interfaces::Surface->DrawSetColor(Color::Green());
+									Interfaces::Surface->DrawOutlinedRect(screenbacktrack[i][t].x, screenbacktrack[i][t].y, screenbacktrack[i][t].x + 2, screenbacktrack[i][t].y + 2);
+								}
+							}
+							if (pelvisPositions[i][t].simtime && pelvisPositions[i][t].simtime + 1 > pLocal->GetSimulationTime())
+							{
+								if (Render::WorldToScreen(pelvisPositions[i][t].hitboxPos, screenbacktrack[i][t]))
 								{
 
 									Interfaces::Surface->DrawSetColor(Color::Green());

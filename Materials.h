@@ -76,13 +76,24 @@ public:
 
 };
 
+template <typename Fn> __forceinline Fn GetVirtualFunction(void* pClassBase, int nFunctionIndex) {
+	return (Fn)((PDWORD)*(PDWORD*)pClassBase)[nFunctionIndex];
+}
+
 class CModelInfo
 {
 public:
+	inline void* GetModel(int Index)
+	{
+		return GetVirtualFunction<void*(__thiscall *)(void*, int)>(this, 1)(this, Index);
+	}
 	int	GetModelIndex(const char *name)
 	{
 		typedef int (__thiscall* oGetModelName)(PVOID, const char *);
 		return call_vfunc< oGetModelName >(this, 2)(this, name);
+	}
+	inline const char* GetModelName(const void* Model) {
+		return GetVirtualFunction<const char*(__thiscall *)(void*, const void*)>(this, 3)(this, Model);
 	}
 	const char *GetModelName(const model_t *mod)
 	{
